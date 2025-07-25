@@ -262,7 +262,7 @@
         let workbook = null;
         let matchWorkbook = null;
         let currentData = [];
-        let matchData = [];
+        let matchFileData = [];
         let originalData = [];
         let currentSheet = '';
         let matchedData = [];
@@ -534,7 +534,7 @@
             const headers = jsonData[0];
             const rows = jsonData.slice(1);
             
-            matchData = rows.map(row => {
+            matchFileData = rows.map(row => {
                 const obj = {};
                 headers.forEach((header, index) => {
                     obj[header] = row[index] || '';
@@ -542,7 +542,7 @@
                 return obj;
             });
             
-            alert(`매칭 데이터 ${matchData.length}건이 로드되었습니다.`);
+            alert(`매칭 데이터 ${matchFileData.length}건이 로드되었습니다.`);
         }
 
         function matchData() {
@@ -551,14 +551,14 @@
                 return;
             }
             
-            if (originalData.length === 0 || matchData.length === 0) {
+            if (originalData.length === 0 || matchFileData.length === 0) {
                 alert('데이터가 없습니다.');
                 return;
             }
             
             // 매칭 데이터를 증권번호로 인덱싱
             const matchIndex = {};
-            matchData.forEach(row => {
+            matchFileData.forEach(row => {
                 const headers = Object.keys(row);
                 const securityNumber = row[headers[0]]; // A열 (증권번호)
                 if (securityNumber) {
