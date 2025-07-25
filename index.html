@@ -242,7 +242,7 @@
                         <input type="text" id="filterInput" placeholder="검색어 입력">
                     </div>
                     <button class="action-btn" onclick="applyFilters()">적용</button>
-                    <button class="action-btn" onclick="matchData()" id="matchBtn" style="display: none;">데이터 매칭 실행</button>
+                    <button class="action-btn" onclick="executeMatching()" id="matchBtn" style="display: none;">데이터 매칭 실행</button>
                     <button class="action-btn" onclick="downloadProcessedData()">가공된 데이터 다운로드</button>
                 </div>
                 
@@ -545,7 +545,7 @@
             alert(`매칭 데이터 ${matchFileData.length}건이 로드되었습니다.`);
         }
 
-        function matchData() {
+        function executeMatching() {
             if (!workbook || !matchWorkbook) {
                 alert('두 파일을 모두 업로드해주세요.');
                 return;
