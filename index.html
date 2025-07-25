@@ -201,11 +201,20 @@
         
         <div class="content">
             <div class="upload-section" id="uploadSection">
-                <h3>📁 엑셀 파일 업로드</h3>
-                <p>Excel 파일 (.xlsx, .xls)을 드래그하거나 클릭하여 업로드하세요</p>
+                <h3>📁 기준 데이터 파일 업로드 (A열: 증권번호, B열: 사용인코드)</h3>
+                <p>첫 번째 파일: 기준이 되는 데이터</p>
                 <input type="file" id="fileInput" class="file-input" accept=".xlsx,.xls" />
                 <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
-                    파일 선택하기
+                    기준 파일 선택하기
+                </button>
+            </div>
+            
+            <div class="upload-section" id="matchUploadSection" style="display: none;">
+                <h3>📊 보유계약 데이터 파일 업로드 (A열: 증권번호, E열: 소속, H열: 수금인명)</h3>
+                <p>두 번째 파일: 매칭할 보유계약 데이터</p>
+                <input type="file" id="matchFileInput" class="file-input" accept=".xlsx,.xls" />
+                <button class="upload-btn" onclick="document.getElementById('matchFileInput').click()">
+                    매칭 파일 선택하기
                 </button>
             </div>
             
@@ -233,6 +242,7 @@
                         <input type="text" id="filterInput" placeholder="검색어 입력">
                     </div>
                     <button class="action-btn" onclick="applyFilters()">적용</button>
+                    <button class="action-btn" onclick="matchData()" id="matchBtn" style="display: none;">데이터 매칭 실행</button>
                     <button class="action-btn" onclick="downloadProcessedData()">가공된 데이터 다운로드</button>
                 </div>
                 
@@ -250,12 +260,16 @@
 
     <script>
         let workbook = null;
+        let matchWorkbook = null;
         let currentData = [];
+        let matchData = [];
         let originalData = [];
         let currentSheet = '';
+        let matchedData = [];
 
         // 파일 업로드 처리
         document.getElementById('fileInput').addEventListener('change', handleFile);
+        document.getElementById('matchFileInput').addEventListener('change', handleMatchFile);
         
         // 드래그 앤 드롭 처리
         const uploadSection = document.getElementById('uploadSection');
@@ -285,18 +299,32 @@
         function handleFile(e) {
             const file = e.target.files[0];
             if (file) {
-                processFile(file);
+                processFile(file, 'base');
             }
         }
 
-        function processFile(file) {
+        function handleMatchFile(e) {
+            const file = e.target.files[0];
+            if (file) {
+                processFile(file, 'match');
+            }
+        }
+
+        function processFile(file, type) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    workbook = XLSX.read(e.target.result, {type: 'binary'});
-                    setupSheetSelector();
-                    loadSheet(workbook.SheetNames[0]);
-                    document.getElementById('dataSection').classList.remove('hidden');
+                    if (type === 'base') {
+                        workbook = XLSX.read(e.target.result, {type: 'binary'});
+                        setupSheetSelector();
+                        loadSheet(workbook.SheetNames[0]);
+                        document.getElementById('dataSection').classList.remove('hidden');
+                        document.getElementById('matchUploadSection').style.display = 'block';
+                    } else if (type === 'match') {
+                        matchWorkbook = XLSX.read(e.target.result, {type: 'binary'});
+                        loadMatchData();
+                        document.getElementById('matchBtn').style.display = 'inline-block';
+                    }
                 } catch (error) {
                     alert('파일을 읽는 중 오류가 발생했습니다: ' + error.message);
                 }
